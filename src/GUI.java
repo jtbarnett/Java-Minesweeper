@@ -315,34 +315,82 @@ public class GUI extends JFrame {
 		// Need to start with initial blank and get Left, Right, Bottom, Top
 		
 		// Left
-		if (x-1 >= 0 && !revealed[x-1][y]) {
-			revealed[x-1][y] = true;
-			if (blank[x-1][y]) {
-				revealAllBlanks(x-1, y);
+		if (x-1 >= 0) {
+			if (!revealed[x-1][y]) {
+				revealed[x-1][y] = true;
+				if (blank[x-1][y]) {
+					revealAllBlanks(x-1, y);
+				}
 			}
 		}
 		
 		// Right
-		if (x+1 <= 15 && !revealed[x+1][y]) {
-			revealed[x+1][y] = true;
-			if (blank[x+1][y]) {
-				revealAllBlanks(x+1, y);
-			}
-		}
-		
-		// Bottom
-		if (y-1 >= 0 && !revealed[x][y-1]) {
-			revealed[x][y-1] = true;
-			if (blank[x][y-1]) {
-				revealAllBlanks(x, y-1);
+		if (x+1 <= 15) {
+			if (!revealed[x+1][y]) {
+				revealed[x+1][y] = true;
+				if (blank[x+1][y]) {
+					revealAllBlanks(x+1, y);
+				}
 			}
 		}
 		
 		// Top
-		if (y+1 <= 8 && !revealed[x][y+1]) {
-			revealed[x][y+1] = true;
-			if (blank[x][y+1]) {
-				revealAllBlanks(x, y+1);
+		if (y-1 >= 0) {
+			if (!revealed[x][y-1]) {
+				revealed[x][y-1] = true;
+				if (blank[x][y-1]) {
+					revealAllBlanks(x, y-1);
+				}
+			}
+		}
+		
+		// Bottom
+		if (y+1 <= 8) {
+			if (!revealed[x][y+1]) {
+				revealed[x][y+1] = true;
+				if (blank[x][y+1]) {
+					revealAllBlanks(x, y+1);
+				}
+			}
+		}
+		
+		// Top Left
+		if (x-1 >= 0 && y-1 >= 0) {
+			if (!revealed[x-1][y-1]) {
+				revealed[x-1][y-1] = true;
+				if (blank[x-1][y-1]) {
+					revealAllBlanks(x-1, y-1);
+				}
+			}
+		}
+		
+		// Top Right
+		if (x+1 <= 15 && y-1 >= 0) {
+			if (!revealed[x+1][y-1]) {
+				revealed[x+1][y-1] = true;
+				if (blank[x+1][y-1]) {
+					revealAllBlanks(x+1, y-1);
+				}
+			}
+		}
+		
+		// Bottom Left
+		if (x-1 >= 0 && y+1 <= 8) {
+			if (!revealed[x-1][y+1]) {
+				revealed[x-1][y+1] = true;
+				if (blank[x-1][y+1]) {
+					revealAllBlanks(x-1, y+1);
+				}
+			}
+		}
+		
+		// Bottom Right
+		if (x+1 <= 15 && y+1 <= 8) {
+			if (!revealed[x+1][y+1]) {
+				revealed[x+1][y+1] = true;
+				if (blank[x+1][y+1]) {
+					revealAllBlanks(x+1, y+1);
+				}
 			}
 		}
 	}
