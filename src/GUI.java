@@ -14,13 +14,12 @@ public class GUI extends JFrame {
 	Date endDate = new Date();
 	
 	// Spacing between each box
-	public int spacing = 5;
+	public int spacing = 1;
 	
 	// mouse x and y coordinates
 	public int mx, my = -100;
 	
 	public int numberOfMines = 0;
-	public int mineCounter = 0;
 	public int numberOfNeighbors = 0;
 	
 	// Smile face variables
@@ -31,9 +30,14 @@ public class GUI extends JFrame {
 	public boolean smile = true;
 	
 	// Time counter variables
-	public int timeX = 1125;
+	public int timeX = 1126;
 	public int timeY = 5;
 	public int seconds = 0;
+	
+	// Mine counter variables
+	public int mineX = 3;
+	public int mineY = 5;
+	public int mineCounter = 0;
 	
 	public boolean victory = false;
 	public boolean defeat = false;
@@ -63,7 +67,7 @@ public class GUI extends JFrame {
 		for (int i = 0; i < 16; i++) {
 			for (int j = 0; j < 9; j++) {
 				// We want 1/5 squares to be a mine
-				if (random.nextInt(100) < 16) {
+				if (random.nextInt(100) < 18) {
 					mines[i][j] = 1;
 					// Keep track of total mines
 					numberOfMines++;
@@ -117,10 +121,6 @@ public class GUI extends JFrame {
 				for (int j = 0; j < 9; j++) {
 					g.setColor(Color.gray);
 					
-					/*if (mines[i][j] == 1) {
-						g.setColor(Color.yellow);
-					}*/
-					
 					if (revealed[i][j] == true) {
 						// Revealed and does not contain mine
 						g.setColor(Color.white);
@@ -131,8 +131,10 @@ public class GUI extends JFrame {
 					}
 					
 					// If you are hovering a box
-					if (mx >= spacing+i*80+6 && mx < i*80+6+80 && my >= spacing+j*80+80+29 && my < spacing+j*80+29+80+80-2*spacing) {
-						g.setColor(Color.lightGray);
+					if (!victory && !defeat && !revealed[i][j]) {
+						if (mx >= spacing+i*80+6 && mx < i*80+6+80 && my >= spacing+j*80+80+29 && my < spacing+j*80+29+80+80-2*spacing) {
+							g.setColor(Color.lightGray);
+						}
 					}
 					g.fillRect(spacing+i*80, spacing+j*80+80, 80-2*spacing, 80-2*spacing);
 					
@@ -165,6 +167,19 @@ public class GUI extends JFrame {
 							g.fillRect(i*80+38, j*80+80+15, 4, 50);
 							g.fillRect(i*80+15, j*80+80+38, 50, 4);
 						}
+					}
+					
+					// Flags
+					if (flagged[i][j]) {
+						g.setColor(Color.black);
+						g.fillRect(i*80+40, j*80+80+20, 7, 40);
+						g.fillRect(i*80+28, j*80+80+55, 30, 6);
+						g.setColor(Color.red);
+						g.fillRect(i*80+26, j*80+80+20, 20, 15);
+						g.setColor(Color.black);
+						g.drawRect(i*80+26, j*80+80+20, 20, 15);
+						g.drawRect(i*80+27, j*80+80+21, 18, 13);
+						g.drawRect(i*80+28, j*80+80+22, 16, 11);
 					}
 				}
 			}
@@ -205,7 +220,7 @@ public class GUI extends JFrame {
 				seconds = 9999;
 			}
 			
-			// Set time color
+			// Set time number color
 			g.setColor(Color.white);
 			
 			if (victory) {
@@ -224,6 +239,28 @@ public class GUI extends JFrame {
 				g.drawString("0" + Integer.toString(seconds), timeX+3, timeY+60);
 			} else {
 				g.drawString(Integer.toString(seconds), timeX+3, timeY+60);
+			}
+			
+			
+			// Mine counter box
+			g.setColor(Color.black);
+			g.fillRect(mineX, mineY, 112, 70);
+			
+			// Set mine number color
+			g.setColor(Color.white);
+			
+			g.setFont(new Font("Tahoma", Font.PLAIN, 65));
+			
+			if ((mineCounter < 10) && (mineCounter >= 0)) {
+				g.drawString("00" + Integer.toString(mineCounter), mineX+3, mineY+60);
+			} else if ((mineCounter < 100) && (mineCounter >= 10)) {
+				g.drawString("0" + Integer.toString(mineCounter), mineX+3, mineY+60);
+			} else if ((mineCounter < 0) && (mineCounter >= -9)) {
+				g.drawString("-0" + Integer.toString(Math.abs(mineCounter)), mineX+3, mineY+60);
+			} else if (mineCounter < -9) {
+				g.drawString("-" + Integer.toString(Math.abs(mineCounter)), mineX+3, mineY+60);
+			} else {
+				g.drawString(Integer.toString(mineCounter), mineX+3, mineY+60);
 			}
 			
 			
@@ -268,14 +305,43 @@ public class GUI extends JFrame {
 	public class Click implements MouseListener {
 		@Override
 		public void mouseClicked(MouseEvent e) {
+			
 			mx = e.getX();
 			my = e.getY();
 			
-			if (inBoxX() != -1 && inBoxY() != -1) {
-				revealed[inBoxX()][inBoxY()] = true;
-				System.out.println("The mouse is in the [" + inBoxX() + ", " + inBoxY() + "], Number of mine neighbors: " + neighbors[inBoxX()][inBoxY()]);
-			}
+			// Left click
+	        if(e.getButton() == MouseEvent.BUTTON1) {
+	        	if (!victory && !defeat) {
+					if (inBoxX() != -1 && inBoxY() != -1) {
+						if (!revealed[inBoxX()][inBoxY()]) {
+							if (!flagged[inBoxX()][inBoxY()]) {
+								revealed[inBoxX()][inBoxY()] = true;
+							}
+						}
+					}
+	        	}
+	        }
+	        
+	        // Right click
+	        if(e.getButton() == MouseEvent.BUTTON3) {
+				if (!victory && !defeat) {
+					if (inBoxX() != -1 && inBoxY() != -1) {
+						// We want to flag the box, not reveal it
+						if (!revealed[inBoxX()][inBoxY()]) {
+							// if not flagged already, we want to flag
+							if (!flagged[inBoxX()][inBoxY()]) {
+								flagged[inBoxX()][inBoxY()] = true;
+								mineCounter--;
+							} else {
+								flagged[inBoxX()][inBoxY()] = false;
+								mineCounter++;
+							}
+						}
+					}
+				}
+	        }
 			
+			// Check to see if click in smile
 			if (clickInSmile()) {
 				resetAll();
 			}
@@ -358,9 +424,10 @@ public class GUI extends JFrame {
 		for (int i = 0; i < 16; i++) {
 			for (int j = 0; j < 9; j++) {
 				// We want 1/5 squares to be a mine
-				if (random.nextInt(100) < 16) {
+				if (random.nextInt(100) < 18) {
 					mines[i][j] = 1;
 					// Keep track of total mines
+					mineCounter++;
 					numberOfMines++;
 				} else {
 					mines[i][j] = 0;
@@ -407,21 +474,35 @@ public class GUI extends JFrame {
 	
 	// Check to see if the player has won the game
 	public void checkVictory() {
-		if (!defeat) {
+		if (!defeat && !victory) {
 			for (int i = 0; i < 16; i++) {
 				for (int j = 0; j < 9; j++) {
 					if(revealed[i][j] && mines[i][j] == 1) {
 						defeat = true;
 						smile = false;
 						endDate = new Date();
+						
+						for (int m = 0; m < 16; m++) {
+							for (int n = 0; n < 9; n++) {
+								flagged[m][n] = false;
+								revealed[m][n] = true;
+							}
+						}
 					}
 				}
 			}
 		}
 		
-		if ((totalBoxesRevealed() >= (144 - numberOfMines)) && !victory) {
+		if ((totalBoxesRevealed() >= (144 - numberOfMines)) && !victory && !defeat) {
 			victory = true;
 			endDate = new Date();
+			
+			for (int m = 0; m < 16; m++) {
+				for (int n = 0; n < 9; n++) {
+					flagged[m][n] = false;
+					revealed[m][n] = true;
+				}
+			}
 		}
 	}
 	
