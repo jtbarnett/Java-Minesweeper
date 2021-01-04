@@ -52,6 +52,7 @@ public class GUI extends JFrame {
 	// All grid arrays
 	int[][] mines = new int[16][9];
 	int[][] neighbors = new int[16][9];
+	boolean[][] blank = new boolean[16][9];
 	boolean[][] revealed = new boolean[16][9];
 	boolean[][] flagged = new boolean[16][9];
 	
@@ -77,6 +78,7 @@ public class GUI extends JFrame {
 				}
 				
 				// Initialize all to revealed and flagged false
+				blank[i][j] = false;
 				revealed[i][j] = false;
 				flagged[i][j] = false;
 			}
@@ -85,7 +87,9 @@ public class GUI extends JFrame {
 		// Setting up the number of neighbors
 		for (int i = 0; i < 16; i++) {
 			for (int j = 0; j < 9; j++) {
+				
 				numberOfNeighbors = 0;
+				
 				for (int m = 0; m < 16; m++) {
 					for (int n = 0; n < 9; n++) {
 						if (!(m == i && n == j)) {
@@ -95,6 +99,11 @@ public class GUI extends JFrame {
 						}
 					}
 				}
+				
+				if (numberOfNeighbors == 0) {
+					blank[i][j] = true;
+				}
+				
 				neighbors[i][j] = numberOfNeighbors;
 			}
 		}
@@ -301,6 +310,44 @@ public class GUI extends JFrame {
 	}
 	
 	
+	// Used to reveal all surrounding boxes of a blank box that is clicked
+	public void revealAllBlanks(int x, int y) {
+		// Need to start with initial blank and get Left, Right, Bottom, Top
+		
+		// Left
+		if (x-1 >= 0 && !revealed[x-1][y]) {
+			revealed[x-1][y] = true;
+			if (blank[x-1][y]) {
+				revealAllBlanks(x-1, y);
+			}
+		}
+		
+		// Right
+		if (x+1 <= 15 && !revealed[x+1][y]) {
+			revealed[x+1][y] = true;
+			if (blank[x+1][y]) {
+				revealAllBlanks(x+1, y);
+			}
+		}
+		
+		// Bottom
+		if (y-1 >= 0 && !revealed[x][y-1]) {
+			revealed[x][y-1] = true;
+			if (blank[x][y-1]) {
+				revealAllBlanks(x, y-1);
+			}
+		}
+		
+		// Top
+		if (y+1 <= 8 && !revealed[x][y+1]) {
+			revealed[x][y+1] = true;
+			if (blank[x][y+1]) {
+				revealAllBlanks(x, y+1);
+			}
+		}
+	}
+	
+	
 	// When there is any sort of mouse click
 	public class Click implements MouseListener {
 		@Override
@@ -314,8 +361,15 @@ public class GUI extends JFrame {
 	        	if (!victory && !defeat) {
 					if (inBoxX() != -1 && inBoxY() != -1) {
 						if (!revealed[inBoxX()][inBoxY()]) {
+							// If not revealed and not flagged, then reveal box
 							if (!flagged[inBoxX()][inBoxY()]) {
 								revealed[inBoxX()][inBoxY()] = true;
+								
+								// If the box is blank, then we want to reveal all other boxes around it until
+								// we can't find any more blank boxes
+								if (blank[inBoxX()][inBoxY()]) {
+									revealAllBlanks(inBoxX(), inBoxY());
+								}
 							}
 						}
 					}
@@ -434,6 +488,7 @@ public class GUI extends JFrame {
 				}
 				
 				// Initialize all to revealed and flagged false
+				blank[i][j] = false;
 				revealed[i][j] = false;
 				flagged[i][j] = false;
 			}
@@ -442,7 +497,9 @@ public class GUI extends JFrame {
 		// Setting up the number of neighbors
 		for (int i = 0; i < 16; i++) {
 			for (int j = 0; j < 9; j++) {
+				
 				numberOfNeighbors = 0;
+				
 				for (int m = 0; m < 16; m++) {
 					for (int n = 0; n < 9; n++) {
 						if (!(m == i && n == j)) {
@@ -452,6 +509,11 @@ public class GUI extends JFrame {
 						}
 					}
 				}
+				
+				if (numberOfNeighbors == 0) {
+					blank[i][j] = true;
+				}
+				
 				neighbors[i][j] = numberOfNeighbors;
 			}
 		}
