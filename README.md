@@ -4,8 +4,8 @@ Built with Java in Eclipse with JDK 15.0.1, JavaFX 15, JFrame, Jpanel, and Swing
 
 ## Screenshots
 
-![](images/Minesweeper1.PNG)
+![](images/Minesweeper1.png)
 
-![](images/Minesweeper2.PNG)
+![](images/Minesweeper2.png)
 
-![](images/Minesweeper3.PNG)
+![](images/Minesweeper3.png)
